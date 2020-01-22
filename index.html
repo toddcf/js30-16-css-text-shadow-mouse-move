@@ -38,46 +38,48 @@
 
   <script>
 
-    // Select the .hero element:
-    const hero = document.querySelector('.hero');
+    const shadower = {
+      // Select the .hero element:
+      hero: document.querySelector('.hero'),
+      // Select the text inside of the hero, which is the H1:
+      text: document.querySelector('h1'),
+      // How many pixels to stretch the shadow (100px):
+      walk: 100,
+      shadow: (e) => {
+        // Get width and height of the hero element:
+        const { offsetWidth: width, offsetHeight: height } = shadower.hero;
 
-    // Select the text inside of the hero, which is the H1:
-    const text = hero.querySelector('h1');
+        // Get offset of X and Y from the event (e):
+        let { offsetX: x, offsetY: y } = e;
 
-    // How many pixels to stretch the shadow:
-    const walk = 100; // 100px
+        // Normalize the offset values when hovering over the .hero element's children:
+        if(e.currentTarget !== e.target) {
+          x += e.target.offsetLeft;
+          y += e.target.offsetTop;
+        }
 
-    const shadow = (e) => {
-      // Get width and height of the hero element:
-      const { offsetWidth: width, offsetHeight: height } = hero;
+        // Width: If 100 is our walk, 50 is our max, and -50 is our min:
+        const xWalk = Math.round(( x / width * shadower.walk ) - ( shadower.walk / 2 ));
+        // Same for height:
+        const yWalk = Math.round(( y / height * shadower.walk) - ( shadower.walk / 2 ));
 
-      // Get offset of X and Y from the event (e):
-      let { offsetX: x, offsetY: y } = e;
+        // Calculate blur:
+        const blur = Math.round( (Math.sqrt( Math.pow(xWalk, 2) + Math.pow(yWalk, 2))) / 3 );
 
-      // Normalize the offset values when hovering over the .hero element's children:
-      if(e.currentTarget !== e.target) {
-        x = x + e.target.offsetLeft;
-        y = y + e.target.offsetTop;
+        // Make more opaque when mouse is farther away from the text:
+        const opacity = Math.abs(blur * 50);
+
+        // Set the text shadow accordingly:
+        shadower.text.style.textShadow = `${xWalk}px ${yWalk}px ${blur}px rgba(0, 0, 0, ${opacity})`;
+
+      },
+      init: () => {
+        // When the mouse moves, invoke the shadow function:
+        shadower.hero.addEventListener('mousemove', shadower.shadow);
       }
-
-      // Width: If 100 is our walk, 50 is our max, and -50 is our min:
-      const xWalk = Math.round(( x / width * walk ) - ( walk / 2 ));
-      // Same for height:
-      const yWalk = Math.round(( y / height * walk) - ( walk / 2 ));
-
-      // Calculate blur:
-      const blur = Math.round( (Math.sqrt( Math.pow(xWalk, 2) + Math.pow(yWalk, 2))) / 3 );
-
-      // Make more opaque when mouse is farther away from the text:
-      const opacity = Math.abs(blur * 50);
-
-      // Set the text shadow accordingly:
-      text.style.textShadow = `${xWalk}px ${yWalk}px ${blur}px rgba(0, 0, 0, ${opacity})`;
-
     }
 
-    // When the mouse moves, invoke the shadow function:
-    hero.addEventListener('mousemove', shadow);
+    shadower.init();
 
   </script>
 
